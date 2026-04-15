@@ -19,7 +19,7 @@ export default function MolarMassCard() {
 
     const calculateMass = () => {
         let total = 0;
-        
+
         for(const row of rows) {
             if (!atomicMass[row.element]) return;
             const mass = atomicMass[row.element]
@@ -47,8 +47,9 @@ export default function MolarMassCard() {
         setRows(updatedRows)
     }
     return (
-        <div className="card p-5 bg-red-200 mt-5 w-1/3 mx-auto rounded-2xl">
-            <button onClick={addRow} className="btn bg-sky-500 p-2 rounded-2xl">add element</button>
+        <div className="p-6 bg-white shadow-xl mt-6 sm:mt-10 w-full max-w-lg mx-auto rounded-2xl border">
+            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Molar Mass Calculator</h2>
+            <button onClick={addRow} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition w-full sm:w-auto cursor-pointer">add element</button>
             {rows.map((row, index)=>(
                 <ElementRow 
                 key={index}
@@ -58,10 +59,10 @@ export default function MolarMassCard() {
                 onChange={handleChange}
                 />
             ))}
-            <div className="flex items-center gap-2 mt-2">
-                <button onClick={calculateMass} className="btn bg-sky-500 p-2 rounded-2xl">Calculate</button>
-                <span className="text-2xl text-green-700">{result !== null? result : '-'}</span>
-                <span className="text-sm">g/mol</span>
+            <div className="flex items-center justify-between gap-2 mt-4 p-3 bg-gray-100 rounded-xl">
+                <button onClick={calculateMass} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition cursor-pointer">Calculate</button>
+                <span className="text-gray-600">Result:</span>
+                <span className="text-xl font-bold text-green-600">{result !== null ? `${result} g/mol` : "--"}</span>
             </div>
         </div>
     )
