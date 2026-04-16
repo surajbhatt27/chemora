@@ -17,6 +17,7 @@ export default function MolarMassCard() {
 
     const [result, setResult] = useState<number |null>(null)
     const [formula, setFormula] = useState<string>("")
+    const [error, setError] = useState<string| null>(null)
 
     const calculateMass = () => {
         let total = 0;
@@ -72,10 +73,50 @@ export default function MolarMassCard() {
     }
 
     const handleparse = ()=> {
-        if(!formula) return;
-        const parsed = parseFormula(formula)
+        if(!formula.trim()) {
+            setError("Please enter a formula")
+            return;
+        }
+        const cleanFormula = normalizeFormula(formula.trim())
+        const parsed = parseFormula(cleanFormula)
+        for(const item of parsed) {
+            if(!atomicMass[item.element]) {
+                setError(`Unknown element: ${item.element}`)
+                return;
+            }
+            if(item.quantity < 0) {
+                setError("Quantity must be greater than 0")
+                return;
+            }
+        }
+        setError(null)
         setRows(parsed)
         setResult(null)
+    }
+
+    const validElements = new Set(["H", "O", "Na", "Cl", "C"]);
+
+    function normalizeFormula(formula: string) {
+        let result = ""
+        let i=0
+        while (i<formula.length) {
+            const char = formula[i].toUpperCase()
+            
+            let twoChar = ""
+            if(i+1 <formula.length) {
+                twoChar = char + formula[i+1].toLowerCase()
+            }
+
+            if(validElements.has(twoChar)) {
+                result += twoChar
+                i += 2
+            }
+            else {
+                result += char
+                i += 1
+            }
+        }
+        return result
     }
 
     return (
@@ -88,6 +129,11 @@ export default function MolarMassCard() {
             onChange={(e)=> setFormula(e.target.value)} 
             placeholder="Enter formula" 
             className="px-4 py-2 border rounded-xl" />
+            {error && (
+            <p className="text-red-500 text-sm mt-1">
+                {error}
+            </p>
+            )}
             <button 
             onClick={handleparse}
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition cursor-pointer w-full sm:w-auto text-sm sm:text-base">Parse</button>
