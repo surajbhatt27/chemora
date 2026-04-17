@@ -20,6 +20,7 @@ export default function MolarMassCard() {
     const [error, setError] = useState<string| null>(null)
     const [mode, setMode] = useState<"formula" | "manual">("formula");
 
+    // calculate mass
     const calculateMass = () => {
         let total = 0;
 
@@ -33,22 +34,26 @@ export default function MolarMassCard() {
 
     const [rows, setRows] = useState<Row[]>([])
 
+    // add row
     const addRow = ()=> {
         setRows ([...rows, {element:"", quantity: 1}])
         setError(null)
     }
 
+    // remove row
     const handleRemove = (indexToRemove: number)=> {
         const updateRows = rows.filter((_, index) => index !== indexToRemove)
         setRows(updateRows)
     }
 
+    // changes on element and quantity
     const handleChange = (index: number, field: keyof Row, value: string|number) => {
         const updatedRows = [...rows]
         updatedRows[index][field] = value as never;
         setRows(updatedRows)
     }
 
+    // parsing handlers
     const handleparse = () => {
         try {
             if (!formula.trim()) {
@@ -91,6 +96,7 @@ export default function MolarMassCard() {
 
     const validElements = new Set(["H", "O", "Na", "Cl", "C"]);
 
+    // normalization function
     function normalizeFormula(formula: string) {
         let result = ""
         let i=0
@@ -114,6 +120,7 @@ export default function MolarMassCard() {
         return result
     }
 
+    // parsing of formula with brackets
     function parseFormulaWithBrackets(formula: string) {
         const stack: Record<string, number>[] = [{}];
         let i = 0;
