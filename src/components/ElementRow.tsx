@@ -18,6 +18,7 @@ export default function ElementRow({index, row, onRemove, onChange}: Props) {
             value={row.element}
             onChange={(e)=> onChange(index, "element", e.target.value)}
             className="bg-blue-50 px-3 py-2 rounded-lg border border-gray-300 w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>Select</option>
                 <option value="H">H</option>
                 <option value="O">O</option>
                 <option value="Na">Na</option>
