@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import ElementRow from "./ElementRow";
+import atomicMass from "../data/atomicMass";
 
 export default function MolarMassCard() {
 
@@ -8,23 +9,17 @@ export default function MolarMassCard() {
         quantity: number;
     };
 
-    const atomicMass: Record<string, number> = {
-        H: 1,
-        O: 16,
-        Na: 23,
-        Cl: 35.5
-    }
-
     const [result, setResult] = useState<number |null>(null)
     const [formula, setFormula] = useState<string>("")
     const [error, setError] = useState<string| null>(null)
     const [mode, setMode] = useState<"formula" | "manual">("formula");
+    const validElements = new Set(Object.keys(atomicMass));
 
     // calculate mass
     const calculateMass = () => {
         let total = 0;
 
-        for(const row of rows) {
+        for(const row of displayRows) {
             if (!atomicMass[row.element]) return;
             const mass = atomicMass[row.element]
             total += mass * row.quantity
@@ -53,49 +48,6 @@ export default function MolarMassCard() {
         setRows(updatedRows)
     }
 
-    // parsing handlers
-    const handleparse = () => {
-        try {
-            if (!formula.trim()) {
-                setError("Please enter a formula");
-                return;
-            }
-
-            const cleanFormula = formula.replace(/\s+/g, "").trim();
-            const normalized = normalizeFormula(cleanFormula);
-
-            const parsedMap = parseFormulaWithBrackets(normalized);
-
-            const parsedArray = Object.entries(parsedMap).map(
-                ([element, quantity]) => ({ element, quantity })
-            );
-
-            // validation
-            for (const item of parsedArray) {
-                if (!atomicMass[item.element]) {
-                setError(`Unknown element: ${item.element}`);
-                return;
-                }
-
-                if (item.quantity <= 0) {
-                setError("Quantity must be greater than 0");
-                return;
-                }
-            }
-
-            setError(null);
-            setRows(parsedArray);
-            setResult(null);
-        } catch (err: unknown) {
-            if(err instanceof Error){
-                setError(err.message)
-            }
-            setError("An unexpected error occurred")
-        }
-    };
-
-    const validElements = new Set(["H", "O", "Na", "Cl", "C"]);
-
     // normalization function
     function normalizeFormula(formula: string) {
         let result = ""
@@ -119,6 +71,7 @@ export default function MolarMassCard() {
         }
         return result
     }
+
 
     // parsing of formula with brackets
     function parseFormulaWithBrackets(formula: string) {
@@ -188,6 +141,45 @@ export default function MolarMassCard() {
 
         return stack[0];
     }
+    
+
+    // parsing handlers
+    const parsedData = useMemo(() => {
+        if (!formula.trim()) {
+            return { rows: [], error: null };
+        }
+
+        try {
+            const clean = formula.replace(/\s+/g, "").trim();
+            const normalized = normalizeFormula(clean);
+            const parsedMap = parseFormulaWithBrackets(normalized);
+
+            const rows = Object.entries(parsedMap).map(([element, quantity]) => ({
+            element,
+            quantity,
+            }));
+
+            for (const item of rows) {
+                if (!(item.element in atomicMass)) {
+                    return { rows: [], error: `Unknown element: ${item.element}` };
+                }
+                if (item.quantity <= 0) {
+                    return { rows: [], error: "Quantity must be greater than 0" };
+                }
+            }
+            return { rows, error: null };
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+            return { rows: [], error: err.message };
+            }
+            return { rows: [], error: "Invalid formula" };
+        }
+    }, [formula]);
+
+    const parsedRows = parsedData.rows;
+    const derivedError = parsedData.error;
+    const displayRows = mode === "formula" ? parsedRows : rows;
+    const finalError = mode === "formula" ? derivedError : error;
 
     return (
         <>
@@ -249,11 +241,11 @@ export default function MolarMassCard() {
                 </div>
 
                 <div className="flex flex-col gap-2 mb-4 w-full">
-                    {rows.length > 0 && (
+                    {displayRows.length > 0 && (
                         <div className="bg-gray-50 p-4 rounded-xl mt-3 text-sm mobile-first">
                             <p className="font-semibold mb-2 text-base">Parsed:</p>
                             <div className="space-y-2">
-                                {rows.map((row, i) => (
+                                {displayRows.map((row, i) => (
                                     <div key={i} className="flex justify-between items-center py-1 border-b border-gray-200 last:border-0">
                                         <span className="font-mono font-medium">{row.element}</span>
                                         <span className="text-gray-600">→ {row.quantity}</span>
@@ -263,9 +255,9 @@ export default function MolarMassCard() {
                         </div>
                     )}
 
-                    {error && (
+                    {finalError  && (
                     <p className="text-red-500 text-sm mt-1">
-                        {error}
+                        {finalError }
                     </p>
                     )}
                 </div>
@@ -281,10 +273,6 @@ export default function MolarMassCard() {
                         }}
                         placeholder="Enter formula" 
                         className="px-4 py-2 border rounded-xl" />
-
-                        <button 
-                        onClick={handleparse}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition cursor-pointer w-full sm:w-auto text-sm sm:text-base">Parse</button>
                     </div>
                 )}
 
@@ -363,7 +351,11 @@ export default function MolarMassCard() {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mt-4 p-3 bg-gray-100 rounded-xl">
                     <button 
                     onClick={calculateMass}
-                    disabled={!!error || (rows.length === 0 && !formula.trim())}
+                    disabled={
+                    !!finalError ||
+                    (mode === "formula" && displayRows.length === 0) ||
+                    (mode === "manual" && rows.length === 0)
+                    }
                     className={`
                         px-4 py-2 
                         rounded-xl 
@@ -381,7 +373,7 @@ export default function MolarMassCard() {
                         }
                     `}
                     >
-                    {error ? "Fix errors to calculate" : "Calculate"}
+                    {finalError  ? "Fix errors to calculate" : "Calculate"}
                     </button>
                     <div className="flex items-center justify-between sm:justify-end gap-2">
                         <span className="text-gray-600">Result:</span>
