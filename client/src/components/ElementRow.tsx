@@ -1,5 +1,6 @@
 import { useState } from "react";
 import atomicMass from "../data/atomicMass";
+import { sounds } from "../utils/sound";
 
 type Row = {
     element: string;
@@ -51,7 +52,15 @@ export default function ElementRow({index, row, onRemove, onChange}: Props) {
             className="px-3 py-2 border border-gray-300 rounded-lg w-full text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
                 min="1" 
             />
-            <button onClick={()=>onRemove(index)} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition w-full cursor-pointer text-sm sm:text-base">Remove</button>
+            <button 
+            onClick={()=>
+            {
+                sounds.click()
+                onRemove(index)
+            }} 
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition w-full cursor-pointer text-sm sm:text-base"
+            > Remove
+            </button>
         </div>
     )
 }

@@ -1,1 +1,46 @@
 @import "tailwindcss";
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Input glow animation */
+@keyframes borderPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        border-color: #e5e7eb;
+    }
+    50% {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        border-color: #3b82f6;
+    }
+}
+
+.input-glow:focus {
+    animation: borderPulse 1s ease-in-out infinite;
+    outline: none;
+}
+
+/* Ripple effect for inputs */
+.ripple-input {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.ripple-input:focus {
+    transform: scale(1.01);
+}
+
+/* Cursor blink for typewriter */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
