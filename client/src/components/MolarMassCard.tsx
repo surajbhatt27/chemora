@@ -385,7 +385,7 @@ export default function MolarMassCard() {
                             </p>
                             <p className="font-semibold mb-2 text-base">Parsed:</p>
                             <div className="space-y-2">
-                                {displayRows.map((row, i) => (
+                                {displayRows.map((row) => (
                                     <div className="flex justify-between items-center py-2 px-2 rounded-lg hover:bg-gray-100 transition">
                                         <span className="font-mono font-semibold text-gray-800">
                                             {row.element}
