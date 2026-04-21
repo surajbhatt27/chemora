@@ -50,17 +50,57 @@ export default function MolarMassCard() {
         count: number;
     };
 
-    function parseAllElements(str: string, validElements: Set<string>) {
+    function parseFormulaAll(
+        str: string,
+        validElements: Set<string>
+    ): Token[][] {
         const results: Token[][] = [];
 
         function dfs(index: number, path: Token[]) {
+            if (results.length > 50) return;
+
             if (index >= str.length) {
                 results.push([...path]);
-                if (results.length > 50) return;
                 return;
             }
 
-            // helper to read number
+            // 🔹 CASE 1: OPEN BRACKET
+            if (str[index] === "(") {
+                let depth = 1;
+                let j = index + 1;
+
+                while (j < str.length && depth > 0) {
+                    if (str[j] === "(") depth++;
+                    else if (str[j] === ")") depth--;
+                    j++;
+                }
+
+                const inside = str.slice(index + 1, j - 1);
+
+                // read multiplier
+                let k = j;
+                let numStr = "";
+                while (k < str.length && /[0-9]/.test(str[k])) {
+                    numStr += str[k];
+                    k++;
+                }
+                const multiplier = numStr ? parseInt(numStr) : 1;
+
+                const innerResults = parseFormulaAll(inside, validElements);
+
+                for (const inner of innerResults) {
+                    const multiplied = inner.map(t => ({
+                        el: t.el,
+                        count: t.count * multiplier,
+                    }));
+
+                    dfs(k, [...path, ...multiplied]);
+                }
+
+                return;
+            }
+
+            // 🔹 helper to read number
             function readNumber(i: number) {
                 let numStr = "";
                 while (i < str.length && /[0-9]/.test(str[i])) {
@@ -73,7 +113,7 @@ export default function MolarMassCard() {
                 };
             }
 
-            // 1-letter element
+            // 🔹 CASE 2: 1-letter element
             const one = str[index].toUpperCase();
             if (validElements.has(one)) {
                 const { value, nextIndex } = readNumber(index + 1);
@@ -81,7 +121,7 @@ export default function MolarMassCard() {
                 dfs(nextIndex, [...path, { el: one, count: value }]);
             }
 
-            // 2-letter element
+            // 🔹 CASE 3: 2-letter element
             if (index + 1 < str.length) {
                 const two =
                     str[index].toUpperCase() +
@@ -112,22 +152,22 @@ export default function MolarMassCard() {
         }));
     }
 
-    function getInterpretations(formula: string, validElements: Set<string>) {
-        const clean = formula.replace(/\s+/g, "").trim();
+    function getInterpretations(formula: string) {
+        const clean = formula.replace(/\s+/g, "");
 
-        const tokenSets = parseAllElements(clean, validElements);
+        const tokenSets = parseFormulaAll(clean, validElements);
 
         return tokenSets
-        .map(tokens => ({
-            tokens,
-            rows: tokensToRows(tokens),
-            label: tokens
-            .map(t => `${t.el}${t.count > 1 ? t.count : ""}`)
-            .join(" + "),
-        }))
-        .filter(interp =>
-            interp.rows.every(r => atomicMass[r.element])
-        );
+            .map(tokens => ({
+                tokens,
+                rows: tokensToRows(tokens),
+                label: tokens
+                    .map(t => `${t.el}${t.count > 1 ? t.count : ""}`)
+                    .join(" + "),
+            }))
+            .filter(i =>
+                i.rows.every(r => atomicMass[r.element])
+            );
     }
 
     function scoreInterpretation(tokens: Token[]) {
@@ -250,17 +290,15 @@ export default function MolarMassCard() {
     const interpretations = useMemo(() => {
         if (!formula.trim()) return [];
 
-        const results = getInterpretations(formula, validElements);
-
-        return results
-            .sort(
-                (a, b) =>
-                    scoreInterpretation(b.tokens) -
-                    scoreInterpretation(a.tokens)
-            );
+        return getInterpretations(formula).sort(
+            (a, b) =>
+                scoreInterpretation(b.tokens) -
+                scoreInterpretation(a.tokens)
+        );
     }, [formula]);
 
-    const best = interpretations[selectedIndex] || interpretations[0];
+    const safeIndex = selectedIndex < interpretations.length ? selectedIndex : 0;
+    const best = interpretations[safeIndex];   
     const suggestions = interpretations
         .map((interp, idx) => ({ ...interp, originalIndex: idx }))
         .filter((_, i) => i !== selectedIndex);
@@ -336,9 +374,9 @@ export default function MolarMassCard() {
 
                 <div className="flex flex-col gap-2 mb-4 w-full">
                     {best && (
-                        <p className="text-green-600 text-sm mb-2">
-                            Using: {best.label}
-                        </p>
+                        <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm mb-2">
+                            ✅ Using best match: <span className="font-semibold">{best.label}</span>
+                        </div>
                     )}
                     {displayRows.length > 0 && (
                         <div className="bg-gray-50 p-4 rounded-xl mt-3 text-sm mobile-first">
@@ -348,19 +386,23 @@ export default function MolarMassCard() {
                             <p className="font-semibold mb-2 text-base">Parsed:</p>
                             <div className="space-y-2">
                                 {displayRows.map((row, i) => (
-                                    <div key={i} className="flex justify-between items-center py-1 border-b border-gray-200 last:border-0">
-                                        <span className="font-mono font-medium">{row.element}</span>
-                                        <span className="text-gray-600">→ {row.quantity}</span>
+                                    <div className="flex justify-between items-center py-2 px-2 rounded-lg hover:bg-gray-100 transition">
+                                        <span className="font-mono font-semibold text-gray-800">
+                                            {row.element}
+                                        </span>
+                                        <span className="text-gray-500 text-sm">
+                                            × {row.quantity}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
 
-                    {finalError  && (
-                    <p className="text-red-500 text-sm mt-1">
-                        {finalError }
-                    </p>
+                    {finalError && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm">
+                            ❌ {finalError}
+                        </div>
                     )}
                 </div>
 
@@ -378,20 +420,35 @@ export default function MolarMassCard() {
                     className="
                         input-glow ripple-input
                         px-4 py-3 rounded-xl border-2
-                        bg-white/50 backdrop-blur-sm
+                        bg-white/70 backdrop-blur-sm
                         transition-all duration-300
-                        focus:bg-white
-                        text-base font-mono
+                        focus:bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400
+                        text-base font-mono tracking-wide
                         placeholder:text-gray-400
-                    " 
+                    "
                     />
+                    {formula && interpretations.length > 0 && (
+                        <p className="text-xs text-gray-400 ml-1">
+                            {interpretations.length} possible interpretations found
+                        </p>
+                    )}
                     {suggestions.length > 0 && (
-                    <div>
-                        <p>Did you mean:</p>
+                    <div className="mt-3">
+                        <p className="text-xs text-gray-500 mb-2">Did you mean:</p>
                         {suggestions.map((s, i) => (
                         <button
                             key={i}
-                            onClick={() => setSelectedIndex(s.originalIndex)}
+                            onClick={() => {
+                                setSelectedIndex(s.originalIndex);
+                                playSound('click');
+                            }}
+                            className={`
+                                px-3 py-1.5 rounded-full text-sm font-medium transition-all
+                                border
+                                ${selectedIndex === s.originalIndex
+                                    ? "bg-blue-500 text-white border-blue-500 shadow"
+                                    : "bg-white hover:bg-blue-50 border-gray-200 text-gray-700"}
+                            `}
                         >
                             {s.label}
                         </button>
@@ -534,7 +591,12 @@ export default function MolarMassCard() {
                     <div className="flex items-center justify-between sm:justify-end gap-2">
                     <span className="text-gray-600 font-medium">Result:</span>
                     <div className="relative">
-                        <span className="text-xl font-bold bg-linear-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">
+                        <span className="
+                            text-xl font-bold
+                            bg-linear-to-r from-green-500 to-emerald-500
+                            bg-clip-text text-transparent
+                            drop-shadow-sm
+                        ">
                         {displayResult || (result !== null ? `${result.toFixed(4)} g/mol` : "--")}
                         </span>
                         {isCalculating && displayResult && (
