@@ -18,6 +18,7 @@ export default function MolarMassCard() {
     const [isCalculating, setIsCalculating] = useState(false);
     const [displayResult, setDisplayResult] = useState<string>("");
     const [soundEnabled, setSoundEnabled] = useState(true);
+    const [selectedIndex, setSelectedIndex] = useState(0);
     const validElements = new Set(Object.keys(atomicMass));
 
     const playSound = (soundName: 'click' | 'success' | 'pop' | 'error') => {
@@ -44,7 +45,10 @@ export default function MolarMassCard() {
     };
     }, []);
 
-    type Token = string;
+    type Token = {
+        el: string;
+        count: number;
+    };
 
     function parseAllElements(str: string, validElements: Set<string>) {
         const results: Token[][] = [];
@@ -52,13 +56,29 @@ export default function MolarMassCard() {
         function dfs(index: number, path: Token[]) {
             if (index >= str.length) {
                 results.push([...path]);
+                if (results.length > 50) return;
                 return;
+            }
+
+            // helper to read number
+            function readNumber(i: number) {
+                let numStr = "";
+                while (i < str.length && /[0-9]/.test(str[i])) {
+                    numStr += str[i];
+                    i++;
+                }
+                return {
+                    value: numStr ? parseInt(numStr) : 1,
+                    nextIndex: i,
+                };
             }
 
             // 1-letter element
             const one = str[index].toUpperCase();
             if (validElements.has(one)) {
-                dfs(index + 1, [...path, one]);
+                const { value, nextIndex } = readNumber(index + 1);
+
+                dfs(nextIndex, [...path, { el: one, count: value }]);
             }
 
             // 2-letter element
@@ -68,7 +88,9 @@ export default function MolarMassCard() {
                     str[index + 1].toLowerCase();
 
                 if (validElements.has(two)) {
-                    dfs(index + 2, [...path, two]);
+                    const { value, nextIndex } = readNumber(index + 2);
+
+                    dfs(nextIndex, [...path, { el: two, count: value }]);
                 }
             }
         }
@@ -77,11 +99,11 @@ export default function MolarMassCard() {
         return results;
     }
 
-    function tokensToRows(tokens: string[]): Row[] {
+    function tokensToRows(tokens: Token[]): Row[] {
         const map: Record<string, number> = {};
 
-        for (const el of tokens) {
-            map[el] = (map[el] || 0) + 1;
+        for (const t of tokens) {
+            map[t.el] = (map[t.el] || 0) + t.count;
         }
 
         return Object.entries(map).map(([element, quantity]) => ({
@@ -99,19 +121,24 @@ export default function MolarMassCard() {
         .map(tokens => ({
             tokens,
             rows: tokensToRows(tokens),
-            label: tokens.join(" + "),
+            label: tokens
+            .map(t => `${t.el}${t.count > 1 ? t.count : ""}`)
+            .join(" + "),
         }))
         .filter(interp =>
             interp.rows.every(r => atomicMass[r.element])
         );
     }
 
-    function scoreInterpretation(tokens: string[]) {
+    function scoreInterpretation(tokens: Token[]) {
         let score = 0;
 
         for (const t of tokens) {
-            if (t.length === 2) score += 2; // prefer real elements
+            if (t.el.length === 2) score += 2;
             else score += 1;
+
+            // small bonus for normal counts
+            if (t.count <= 3) score += 0.5;
         }
 
         return score;
@@ -226,9 +253,6 @@ export default function MolarMassCard() {
         const results = getInterpretations(formula, validElements);
 
         return results
-            .filter(interp =>
-                interp.rows.every(r => atomicMass[r.element])
-            )
             .sort(
                 (a, b) =>
                     scoreInterpretation(b.tokens) -
@@ -236,8 +260,10 @@ export default function MolarMassCard() {
             );
     }, [formula]);
 
-    const best = interpretations[0];
-    const suggestions = interpretations.slice(1);
+    const best = interpretations[selectedIndex] || interpretations[0];
+    const suggestions = interpretations
+        .map((interp, idx) => ({ ...interp, originalIndex: idx }))
+        .filter((_, i) => i !== selectedIndex);
     const displayRows = best?.rows || [];
 
     const finalError =
@@ -309,6 +335,11 @@ export default function MolarMassCard() {
                 </div>
 
                 <div className="flex flex-col gap-2 mb-4 w-full">
+                    {best && (
+                        <p className="text-green-600 text-sm mb-2">
+                            Using: {best.label}
+                        </p>
+                    )}
                     {displayRows.length > 0 && (
                         <div className="bg-gray-50 p-4 rounded-xl mt-3 text-sm mobile-first">
                             <p className="text-gray-500 text-sm mt-1">
@@ -339,8 +370,9 @@ export default function MolarMassCard() {
                     type="text"
                     value={formula}
                     onChange={(e) => {
-                        setFormula(e.target.value)
-                        setError(null)
+                        setFormula(e.target.value);
+                        setSelectedIndex(0);
+                        setError(null);
                     }}
                     placeholder="Enter formula (e.g. H2O, NaCl, Ca(OH)2)"
                     className="
@@ -357,7 +389,10 @@ export default function MolarMassCard() {
                     <div>
                         <p>Did you mean:</p>
                         {suggestions.map((s, i) => (
-                        <button key={i}>
+                        <button
+                            key={i}
+                            onClick={() => setSelectedIndex(s.originalIndex)}
+                        >
                             {s.label}
                         </button>
                         ))}
