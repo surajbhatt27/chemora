@@ -44,6 +44,79 @@ export default function MolarMassCard() {
     };
     }, []);
 
+    type Token = string;
+
+    function parseAllElements(str: string, validElements: Set<string>) {
+        const results: Token[][] = [];
+
+        function dfs(index: number, path: Token[]) {
+            if (index >= str.length) {
+                results.push([...path]);
+                return;
+            }
+
+            // 1-letter element
+            const one = str[index].toUpperCase();
+            if (validElements.has(one)) {
+                dfs(index + 1, [...path, one]);
+            }
+
+            // 2-letter element
+            if (index + 1 < str.length) {
+                const two =
+                    str[index].toUpperCase() +
+                    str[index + 1].toLowerCase();
+
+                if (validElements.has(two)) {
+                    dfs(index + 2, [...path, two]);
+                }
+            }
+        }
+
+        dfs(0, []);
+        return results;
+    }
+
+    function tokensToRows(tokens: string[]): Row[] {
+        const map: Record<string, number> = {};
+
+        for (const el of tokens) {
+            map[el] = (map[el] || 0) + 1;
+        }
+
+        return Object.entries(map).map(([element, quantity]) => ({
+            element,
+            quantity,
+        }));
+    }
+
+    function getInterpretations(formula: string, validElements: Set<string>) {
+        const clean = formula.replace(/\s+/g, "").trim();
+
+        const tokenSets = parseAllElements(clean, validElements);
+
+        return tokenSets
+        .map(tokens => ({
+            tokens,
+            rows: tokensToRows(tokens),
+            label: tokens.join(" + "),
+        }))
+        .filter(interp =>
+            interp.rows.every(r => atomicMass[r.element])
+        );
+    }
+
+    function scoreInterpretation(tokens: string[]) {
+        let score = 0;
+
+        for (const t of tokens) {
+            if (t.length === 2) score += 2; // prefer real elements
+            else score += 1;
+        }
+
+        return score;
+    }
+
     // calculate mass
     const calculateMass = async () => {
     if (isCalculating) return;
@@ -147,138 +220,32 @@ export default function MolarMassCard() {
         setRows(updatedRows)
     }
 
-    // normalization function
-    function normalizeFormula(formula: string) {
-        let result = ""
-        let i=0
-        while (i<formula.length) {
-            const char = formula[i].toUpperCase()
-            
-            let twoChar = ""
-            if(i+1 <formula.length) {
-                twoChar = char + formula[i+1].toLowerCase()
-            }
+    const interpretations = useMemo(() => {
+        if (!formula.trim()) return [];
 
-            if(validElements.has(twoChar)) {
-                result += twoChar
-                i += 2
-            }
-            else {
-                result += char
-                i += 1
-            }
-        }
-        return result
-    }
+        const results = getInterpretations(formula, validElements);
 
-
-    // parsing of formula with brackets
-    function parseFormulaWithBrackets(formula: string) {
-        const stack: Record<string, number>[] = [{}];
-        let i = 0;
-
-        while (i < formula.length) {
-            const char = formula[i];
-
-            if (char === '(') {
-                stack.push({});
-                i++;
-                continue;
-            }
-
-            if (char === ')') {
-                i++;
-
-                let numStr = "";
-                while (i < formula.length && /[0-9]/.test(formula[i])) {
-                    numStr += formula[i];
-                    i++;
-                }
-
-                const multiplier = numStr ? parseInt(numStr) : 1;
-
-                if(stack.length === 1) {
-                    throw new Error("Invalid formula: extra closing bracket ')'")
-                }
-
-                const top = stack.pop()!;
-                const prev = stack[stack.length - 1];
-
-                for (const key in top) {
-                    prev[key] = (prev[key] || 0) + top[key] * multiplier;
-                }
-
-                continue;
-            }
-
-            // element parsing
-            let element = char;
-
-            if (i + 1 < formula.length && /[a-z]/.test(formula[i + 1])) {
-            element += formula[i + 1];
-            i++;
-            }
-
-            i++;
-
-            let numStr = "";
-            while (i < formula.length && /[0-9]/.test(formula[i])) {
-            numStr += formula[i];
-            i++;
-            }
-
-            const quantity = numStr ? parseInt(numStr) : 1;
-
-            const current = stack[stack.length - 1];
-            current[element] = (current[element] || 0) + quantity;
-
-            continue;
-        }
-        if (stack.length !== 1) {
-            throw new Error("Invalid formula: missing closing bracket ')'");
-        }
-
-        return stack[0];
-    }
-    
-
-    // parsing handlers
-    const parsedData = useMemo(() => {
-        if (!formula.trim()) {
-            return { rows: [], error: null };
-        }
-
-        try {
-            const clean = formula.replace(/\s+/g, "").trim();
-            const normalized = normalizeFormula(clean);
-            const parsedMap = parseFormulaWithBrackets(normalized);
-
-            const rows = Object.entries(parsedMap).map(([element, quantity]) => ({
-            element,
-            quantity,
-            }));
-
-            for (const item of rows) {
-                if (!(item.element in atomicMass)) {
-                    return { rows: [], error: `Unknown element: ${item.element}` };
-                }
-                if (item.quantity <= 0) {
-                    return { rows: [], error: "Quantity must be greater than 0" };
-                }
-            }
-            return { rows, error: null };
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-            return { rows: [], error: err.message };
-            }
-            return { rows: [], error: "Invalid formula" };
-        }
+        return results
+            .filter(interp =>
+                interp.rows.every(r => atomicMass[r.element])
+            )
+            .sort(
+                (a, b) =>
+                    scoreInterpretation(b.tokens) -
+                    scoreInterpretation(a.tokens)
+            );
     }, [formula]);
 
-    const parsedRows = parsedData.rows;
-    const derivedError = parsedData.error;
-    const displayRows = mode === "formula" ? parsedRows : rows;
-    const finalError = mode === "formula" ? derivedError : error;
+    const best = interpretations[0];
+    const suggestions = interpretations.slice(1);
+    const displayRows = best?.rows || [];
+
+    const finalError =
+    mode === "manual"
+        ? error
+        : interpretations.length === 0
+        ? "Invalid formula"
+        : null;
 
     return (
         <>
@@ -386,6 +353,16 @@ export default function MolarMassCard() {
                         placeholder:text-gray-400
                     " 
                     />
+                    {suggestions.length > 0 && (
+                    <div>
+                        <p>Did you mean:</p>
+                        {suggestions.map((s, i) => (
+                        <button key={i}>
+                            {s.label}
+                        </button>
+                        ))}
+                    </div>
+                    )}
                     <p className="text-xs text-gray-500 ml-1">✨ Try: H2O, CO2, Fe2O3, Ca(OH)2</p>
                 </div>
                 )}
