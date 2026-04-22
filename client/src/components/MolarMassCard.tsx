@@ -3,13 +3,18 @@ import ElementRow from "./ElementRow";
 import atomicMass from "../data/atomicMass";
 import confetti from "canvas-confetti";
 import { sounds, vibrate } from '../utils/sound';
+import {
+        getInterpretations,
+        scoreInterpretation
+} from "../utils/parser";
+import FormulaInput from "./FormulaInput";
+
+type Row = {
+    element: string;
+    quantity: number;
+};
 
 export default function MolarMassCard() {
-
-    type Row = {
-        element: string;
-        quantity: number;
-    };
 
     const [result, setResult] = useState<number |null>(null)
     const [formula, setFormula] = useState<string>("")
@@ -19,7 +24,6 @@ export default function MolarMassCard() {
     const [displayResult, setDisplayResult] = useState<string>("");
     const [soundEnabled, setSoundEnabled] = useState(true);
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const validElements = new Set(Object.keys(atomicMass));
 
     const playSound = (soundName: 'click' | 'success' | 'pop' | 'error') => {
         if (soundEnabled) {
@@ -44,145 +48,6 @@ export default function MolarMassCard() {
         return () => clearInterval(interval);
     };
     }, []);
-
-    type Token = {
-        el: string;
-        count: number;
-    };
-
-    function parseFormulaAll(
-        str: string,
-        validElements: Set<string>
-    ): Token[][] {
-        const results: Token[][] = [];
-
-        function dfs(index: number, path: Token[]) {
-            if (results.length > 50) return;
-
-            if (index >= str.length) {
-                results.push([...path]);
-                return;
-            }
-
-            // 🔹 CASE 1: OPEN BRACKET
-            if (str[index] === "(") {
-                let depth = 1;
-                let j = index + 1;
-
-                while (j < str.length && depth > 0) {
-                    if (str[j] === "(") depth++;
-                    else if (str[j] === ")") depth--;
-                    j++;
-                }
-
-                const inside = str.slice(index + 1, j - 1);
-
-                // read multiplier
-                let k = j;
-                let numStr = "";
-                while (k < str.length && /[0-9]/.test(str[k])) {
-                    numStr += str[k];
-                    k++;
-                }
-                const multiplier = numStr ? parseInt(numStr) : 1;
-
-                const innerResults = parseFormulaAll(inside, validElements);
-
-                for (const inner of innerResults) {
-                    const multiplied = inner.map(t => ({
-                        el: t.el,
-                        count: t.count * multiplier,
-                    }));
-
-                    dfs(k, [...path, ...multiplied]);
-                }
-
-                return;
-            }
-
-            // 🔹 helper to read number
-            function readNumber(i: number) {
-                let numStr = "";
-                while (i < str.length && /[0-9]/.test(str[i])) {
-                    numStr += str[i];
-                    i++;
-                }
-                return {
-                    value: numStr ? parseInt(numStr) : 1,
-                    nextIndex: i,
-                };
-            }
-
-            // 🔹 CASE 2: 1-letter element
-            const one = str[index].toUpperCase();
-            if (validElements.has(one)) {
-                const { value, nextIndex } = readNumber(index + 1);
-
-                dfs(nextIndex, [...path, { el: one, count: value }]);
-            }
-
-            // 🔹 CASE 3: 2-letter element
-            if (index + 1 < str.length) {
-                const two =
-                    str[index].toUpperCase() +
-                    str[index + 1].toLowerCase();
-
-                if (validElements.has(two)) {
-                    const { value, nextIndex } = readNumber(index + 2);
-
-                    dfs(nextIndex, [...path, { el: two, count: value }]);
-                }
-            }
-        }
-
-        dfs(0, []);
-        return results;
-    }
-
-    function tokensToRows(tokens: Token[]): Row[] {
-        const map: Record<string, number> = {};
-
-        for (const t of tokens) {
-            map[t.el] = (map[t.el] || 0) + t.count;
-        }
-
-        return Object.entries(map).map(([element, quantity]) => ({
-            element,
-            quantity,
-        }));
-    }
-
-    function getInterpretations(formula: string) {
-        const clean = formula.replace(/\s+/g, "");
-
-        const tokenSets = parseFormulaAll(clean, validElements);
-
-        return tokenSets
-            .map(tokens => ({
-                tokens,
-                rows: tokensToRows(tokens),
-                label: tokens
-                    .map(t => `${t.el}${t.count > 1 ? t.count : ""}`)
-                    .join(" + "),
-            }))
-            .filter(i =>
-                i.rows.every(r => atomicMass[r.element])
-            );
-    }
-
-    function scoreInterpretation(tokens: Token[]) {
-        let score = 0;
-
-        for (const t of tokens) {
-            if (t.el.length === 2) score += 2;
-            else score += 1;
-
-            // small bonus for normal counts
-            if (t.count <= 3) score += 0.5;
-        }
-
-        return score;
-    }
 
     // calculate mass
     const calculateMass = async () => {
@@ -290,18 +155,23 @@ export default function MolarMassCard() {
     const interpretations = useMemo(() => {
         if (!formula.trim()) return [];
 
-        return getInterpretations(formula).sort(
-            (a, b) =>
-                scoreInterpretation(b.tokens) -
-                scoreInterpretation(a.tokens)
-        );
+        return getInterpretations(formula)
+            .sort(
+                (a, b) =>
+                    scoreInterpretation(b.tokens) -
+                    scoreInterpretation(a.tokens)
+            )
+            .map((interp, idx) => ({
+                ...interp,
+                originalIndex: idx,
+            }));
     }, [formula]);
 
     const safeIndex = selectedIndex < interpretations.length ? selectedIndex : 0;
     const best = interpretations[safeIndex];   
-    const suggestions = interpretations
-        .map((interp, idx) => ({ ...interp, originalIndex: idx }))
-        .filter((_, i) => i !== selectedIndex);
+    const suggestions = interpretations.filter(
+        (i) => i.originalIndex !== selectedIndex
+    );
     const displayRows = best?.rows || [];
 
     const finalError =
@@ -407,56 +277,21 @@ export default function MolarMassCard() {
                 </div>
 
                 {mode === "formula" && (
-                <div className="flex flex-col gap-2 mb-4 w-full">
-                    <input 
-                    type="text"
-                    value={formula}
-                    onChange={(e) => {
-                        setFormula(e.target.value);
+                    <FormulaInput 
+                    formula={formula}
+                    selectedIndex={selectedIndex}
+                    interpretations={interpretations}
+                    suggestions={suggestions}
+                    playSound={playSound}
+                    onFormulaChange={(val) => {
+                        setFormula(val);
                         setSelectedIndex(0);
                         setError(null);
                     }}
-                    placeholder="Enter formula (e.g. H2O, NaCl, Ca(OH)2)"
-                    className="
-                        input-glow ripple-input
-                        px-4 py-3 rounded-xl border-2
-                        bg-white/70 backdrop-blur-sm
-                        transition-all duration-300
-                        focus:bg-white focus:ring-2 focus:ring-blue-400 focus:border-blue-400
-                        text-base font-mono tracking-wide
-                        placeholder:text-gray-400
-                    "
+                    onSelectSuggestion={(index) => {
+                        setSelectedIndex(index);
+                    }}
                     />
-                    {formula && interpretations.length > 0 && (
-                        <p className="text-xs text-gray-400 ml-1">
-                            {interpretations.length} possible interpretations found
-                        </p>
-                    )}
-                    {suggestions.length > 0 && (
-                    <div className="mt-3">
-                        <p className="text-xs text-gray-500 mb-2">Did you mean:</p>
-                        {suggestions.map((s, i) => (
-                        <button
-                            key={i}
-                            onClick={() => {
-                                setSelectedIndex(s.originalIndex);
-                                playSound('click');
-                            }}
-                            className={`
-                                px-3 py-1.5 rounded-full text-sm font-medium transition-all
-                                border
-                                ${selectedIndex === s.originalIndex
-                                    ? "bg-blue-500 text-white border-blue-500 shadow"
-                                    : "bg-white hover:bg-blue-50 border-gray-200 text-gray-700"}
-                            `}
-                        >
-                            {s.label}
-                        </button>
-                        ))}
-                    </div>
-                    )}
-                    <p className="text-xs text-gray-500 ml-1">✨ Try: H2O, CO2, Fe2O3, Ca(OH)2</p>
-                </div>
                 )}
 
                 {mode === "manual" && (
