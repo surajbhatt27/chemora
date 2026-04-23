@@ -8,6 +8,7 @@ import {
         scoreInterpretation
 } from "../utils/parser";
 import FormulaInput from "./FormulaInput";
+import ParsedResult from "./ParsedResult"
 
 type Row = {
     element: string;
@@ -113,25 +114,6 @@ export default function MolarMassCard() {
     };
 
     const [rows, setRows] = useState<Row[]>([])
-
-    function formatFormula (formula: string) {
-        const subScriptMap: Record<string, string>= {
-            "0": "₀",
-            "1": "₁",
-            "2": "₂",
-            "3": "₃",
-            "4": "₄",
-            "5": "₅",
-            "6": "₆",
-            "7": "₇",
-            "8": "₈",
-            "9": "₉",
-        }
-        return formula
-        .split("")
-        .map((char) => subScriptMap[char] || char)
-        .join("")
-    }
 
     // add row
     const addRow = ()=> {
@@ -242,39 +224,12 @@ export default function MolarMassCard() {
                     </button>
                 </div>
 
-                <div className="flex flex-col gap-2 mb-4 w-full">
-                    {best && (
-                        <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm mb-2">
-                            ✅ Using best match: <span className="font-semibold">{best.label}</span>
-                        </div>
-                    )}
-                    {displayRows.length > 0 && (
-                        <div className="bg-gray-50 p-4 rounded-xl mt-3 text-sm mobile-first">
-                            <p className="text-gray-500 text-sm mt-1">
-                            {formatFormula(formula)}
-                            </p>
-                            <p className="font-semibold mb-2 text-base">Parsed:</p>
-                            <div className="space-y-2">
-                                {displayRows.map((row) => (
-                                    <div className="flex justify-between items-center py-2 px-2 rounded-lg hover:bg-gray-100 transition">
-                                        <span className="font-mono font-semibold text-gray-800">
-                                            {row.element}
-                                        </span>
-                                        <span className="text-gray-500 text-sm">
-                                            × {row.quantity}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {finalError && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm">
-                            ❌ {finalError}
-                        </div>
-                    )}
-                </div>
+                <ParsedResult 
+                formula={formula}
+                displayRows={displayRows}
+                finalError={finalError}
+                best={best}
+                />
 
                 {mode === "formula" && (
                     <FormulaInput 
