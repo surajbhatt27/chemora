@@ -9,6 +9,8 @@ import {
 } from "../utils/parser";
 import FormulaInput from "./FormulaInput";
 import ParsedResult from "./ParsedResult"
+import ModeToggle from "./ModeToggle";
+import ResultDisplay from "./ResultDisplay";
 
 type Row = {
     element: string;
@@ -178,51 +180,12 @@ export default function MolarMassCard() {
                 >
                 {soundEnabled ? '🔊' : '🔇'}
                 </button>
-                <div className="flex gap-2 mb-5 touch-manipulation">
-                    <button 
-                        onClick={() => {
-                            playSound('click')
-                            setMode("formula");
-                        }}
-                        className={`
-                        relative overflow-hidden
-                        flex-1 py-3 rounded-xl text-center text-sm sm:text-base font-semibold
-                        transition-all duration-300 ease-out
-                        active:scale-95 active:duration-100
-                        ${mode === "formula" 
-                            ? "bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30" 
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-[1.02]"
-                        }
-                        `}
-                    >
-                        <span className="relative z-10">📝 Formula</span>
-                        {mode === "formula" && (
-                        <span className="absolute inset-0 bg-white/20 animate-pulse rounded-xl" />
-                        )}
-                    </button>
 
-                    <button 
-                        onClick={() => {
-                            playSound('click')
-                            setMode("manual");
-                        }}
-                        className={`
-                        relative overflow-hidden
-                        flex-1 py-3 rounded-xl text-center text-sm sm:text-base font-semibold
-                        transition-all duration-300 ease-out
-                        active:scale-95 active:duration-100
-                        ${mode === "manual" 
-                            ? "bg-linear-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30" 
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-[1.02]"
-                        }
-                        `}
-                    >
-                        <span className="relative z-10">✋ Manual</span>
-                        {mode === "manual" && (
-                        <span className="absolute inset-0 bg-white/20 animate-pulse rounded-xl" />
-                        )}
-                    </button>
-                </div>
+                <ModeToggle 
+                mode={mode}
+                setMode={(m) => setMode(m)}
+                playSound={playSound}
+                />
 
                 <ParsedResult 
                 formula={formula}
@@ -378,22 +341,13 @@ export default function MolarMassCard() {
                         </>
                     )}
                     </button>
-                    <div className="flex items-center justify-between sm:justify-end gap-2">
-                    <span className="text-gray-600 font-medium">Result:</span>
-                    <div className="relative">
-                        <span className="
-                            text-xl font-bold
-                            bg-linear-to-r from-green-500 to-emerald-500
-                            bg-clip-text text-transparent
-                            drop-shadow-sm
-                        ">
-                        {displayResult || (result !== null ? `${result.toFixed(4)} g/mol` : "--")}
-                        </span>
-                        {isCalculating && displayResult && (
-                        <span className="absolute -right-4 top-1/2 -translate-y-1/2 w-1.5 h-5 bg-green-500 animate-pulse rounded-full"></span>
-                        )}
-                    </div>
-                    </div>
+
+                    <ResultDisplay
+                    result={result}
+                    displayResult={displayResult}
+                    isCalculating={isCalculating}
+                    />
+                    
                 </div>
             </div>
         </>
