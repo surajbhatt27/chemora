@@ -1,4 +1,5 @@
-import MolarMassCard from "./components/MolarMassCard"
+import MolarMassCard from "./components/molarMass/MolarMassCard"
+
 
 function App() {
 

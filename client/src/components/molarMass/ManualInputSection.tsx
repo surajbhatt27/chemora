@@ -1,4 +1,4 @@
-import type { Row } from "../types";
+import type { Row } from "../../types";
 import ElementRow from "./ElementRow";
 
 

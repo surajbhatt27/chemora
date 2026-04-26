@@ -1,4 +1,4 @@
-import  formatFormula  from "../utils/formatter";
+import  formatFormula  from "../../utils/formatter";
 
 interface Row {
     element: string;

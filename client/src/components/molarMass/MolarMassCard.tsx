@@ -4,7 +4,7 @@ import ManualInputSection from "./ManualInputSection";
 import FormulaInput from "./FormulaInput";
 import ParsedResult from "./ParsedResult";
 import CalculateButton from "./CalculateButton";
-import { useMolarMass } from "../hooks/useMolarMass";
+import { useMolarMass } from "../../hooks/useMolarMass";
 
 export default function MolarMassCard() {
     const {
