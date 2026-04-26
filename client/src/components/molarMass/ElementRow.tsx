@@ -1,6 +1,6 @@
 import { useState } from "react";
-import atomicMass from "../data/atomicMass";
-import { sounds } from "../utils/sound";
+import atomicMass from "../../data/atomicMass";
+import { sounds } from "../../utils/sound";
 
 type Row = {
     element: string;
