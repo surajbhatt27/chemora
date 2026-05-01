@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { parseEquation } from "../../utils/parseEquation";
 
 export default function ReactionBalancer() {
     const [input, setInput] = useState("");
@@ -6,19 +7,19 @@ export default function ReactionBalancer() {
     const [error, setError] = useState("");
 
     const handleBalance = () => {
-        setError("");
-        setResult("");
+    setError("");
+    setResult("");
 
-        if (!input.trim()) {
-        setError("Enter a chemical equation bro 😑");
-        return;
-        }
+    try {
+        const eq = parseEquation(input);
 
-        // Placeholder logic (you'll replace this later)
-        setTimeout(() => {
-        setResult("Balanced equation will appear here...");
-        }, 500);
-    };
+        console.log("Parsed Equation:", eq);
+
+        setResult("Parsing successful ✅ (check console)");
+    } catch (err: any) {
+        setError(err.message);
+    }
+};
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-zinc-900 to-black text-white p-4">

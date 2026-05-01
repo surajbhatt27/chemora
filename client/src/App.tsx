@@ -1,4 +1,5 @@
 import MolarMassCard from "./components/molarMass/MolarMassCard"
+import ReactionBalancer from "./components/ReactionBalancer/ReactionBalancer"
 
 
 function App() {
@@ -15,6 +16,9 @@ function App() {
       </div>
       <div className="px-3 sm:px-4 py-4 sm:py-6 relative z-10">
         <MolarMassCard/>
+      </div>
+      <div className="px-3 sm:px-4 py-4 sm:py-6 relative z-10">
+        <ReactionBalancer />
       </div>
     </div>
     </>
