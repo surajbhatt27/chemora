@@ -1,5 +1,3 @@
-import  formatFormula  from "../../utils/formatter";
-
 interface Row {
     element: string;
     quantity: number;
@@ -12,44 +10,45 @@ interface ParsedResultProps {
     best?: { label: string } | null;
 }
 
-export default function ParsedResult({ formula, displayRows, finalError, best }: ParsedResultProps) {
+export default function ParsedResult({
+    formula,
+    displayRows,
+    finalError,
+    best,
+}: ParsedResultProps) {
     return (
-        <div className="flex flex-col gap-2 mb-4 w-full">
-            {best && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-sm mb-2">
-                    ✅ Using best match: <span className="font-semibold">{best.label}</span>
-                </div>
-            )}
+        <div className="flex flex-col gap-3 mb-4 w-full">
+        {best && (
+            <div className="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-3 py-2 rounded-lg text-sm">
+            ✓ Using best match: <span className="font-semibold">{best.label}</span>
+            </div>
+        )}
 
-            {displayRows.length > 0 && (
-                <div className="bg-gray-50 p-4 rounded-xl mt-3 text-sm mobile-first">
-                    <p className="text-gray-500 text-sm mt-1">
-                        {formatFormula(formula)}
-                    </p>
-                    <p className="font-semibold mb-2 text-base">Parsed:</p>
-                    <div className="space-y-2">
-                        {displayRows.map((row, idx) => (
-                            <div 
-                                key={idx}
-                                className="flex justify-between items-center py-2 px-2 rounded-lg hover:bg-gray-100 transition"
-                            >
-                                <span className="font-mono font-semibold text-gray-800">
-                                    {row.element}
-                                </span>
-                                <span className="text-gray-500 text-sm">
-                                    × {row.quantity}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
+        {displayRows.length > 0 && (
+            <div className="bg-zinc-900/50 p-4 rounded-xl">
+            <p className="text-zinc-400 text-sm mb-2">{formula}</p>
+            <p className="font-medium text-white mb-2">Parsed:</p>
+            <div className="space-y-1">
+                {displayRows.map((row, idx) => (
+                <div
+                    key={idx}
+                    className="flex justify-between items-center py-1.5 px-2 rounded-lg"
+                >
+                    <span className="font-mono font-medium text-white">
+                    {row.element}
+                    </span>
+                    <span className="text-zinc-400 text-sm">× {row.quantity}</span>
                 </div>
-            )}
+                ))}
+            </div>
+            </div>
+        )}
 
-            {finalError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-3 py-2 rounded-lg text-sm">
-                    ❌ {finalError}
-                </div>
-            )}
+        {finalError && (
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg text-sm">
+            ✗ {finalError}
+            </div>
+        )}
         </div>
     );
 }

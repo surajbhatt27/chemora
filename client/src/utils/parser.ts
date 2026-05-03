@@ -27,7 +27,7 @@ function parseFormulaAll(
             return;
         }
 
-        // 🔹 CASE 1: OPEN BRACKET
+        // CASE 1: OPEN BRACKET
         if (str[index] === "(") {
             let depth = 1;
             let j = index + 1;
@@ -63,7 +63,7 @@ function parseFormulaAll(
             return;
         }
 
-        // 🔹 helper to read number
+        // helper to read number
         function readNumber(i: number) {
             let numStr = "";
             while (i < str.length && /[0-9]/.test(str[i])) {
@@ -76,7 +76,7 @@ function parseFormulaAll(
             };
         }
 
-        // 🔹 CASE 2: 1-letter element
+        // CASE 2: 1-letter element
         const one = str[index].toUpperCase();
         if (validElements.has(one)) {
             const { value, nextIndex } = readNumber(index + 1);
@@ -84,7 +84,7 @@ function parseFormulaAll(
             dfs(nextIndex, [...path, { el: one, count: value }]);
         }
 
-        // 🔹 CASE 3: 2-letter element
+        // CASE 3: 2-letter element
         if (index + 1 < str.length) {
             const two =
                 str[index].toUpperCase() +
