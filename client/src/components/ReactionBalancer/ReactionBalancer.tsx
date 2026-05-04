@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { parseEquation } from "../../utils/parseEquation";
+import { getAllElements } from "../../utils/getElement";
+import { buildEquations } from "../../utils/buildEquations";
+import { solveMatrix } from "../../utils/solveMatrix";
+import { formatEquation } from "../../utils/formatEquation";
 
 export default function ReactionBalancer() {
     const [input, setInput] = useState("");
@@ -7,16 +11,22 @@ export default function ReactionBalancer() {
     const [error, setError] = useState("");
 
     const handleBalance = () => {
-        setError("");
-        setResult("");
+    setError("");
+    setResult("");
 
-        try {
-            const eq = parseEquation(input);
-            console.log("Parsed Equation:", eq);
-            setResult("Parsing successful ✓ (check console)");
-        } catch (err: any) {
-            setError(err.message);
-        }
+    try {
+        const eq = parseEquation(input);
+        const elements = getAllElements(eq);
+        const matrix = buildEquations(eq, elements);
+
+        const coeffs = solveMatrix(matrix);
+
+        console.log("Coefficients:", coeffs);
+
+        setResult(formatEquation(eq, coeffs));
+    } catch (err: any) {
+        setError(err.message);
+    }
     };
 
     return (

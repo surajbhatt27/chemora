@@ -1,5 +1,8 @@
+import { parseFormula } from "./parseFormula";
+
 type Compound = {
     formula: string;
+    elements: Record<string, number>;
 };
 
 type Equation = {
@@ -18,9 +21,14 @@ export function parseEquation(input: string): Equation {
     }
 
     const parseSide = (side: string): Compound[] => {
-        return side.split("+").map((c) => ({
-        formula: c.trim(),
-        }));
+        return side.split("+").map((c) => {
+            const formula = c.trim();
+
+            return {
+            formula,
+            elements: parseFormula(formula),
+            };
+        });
     };
 
     return {
