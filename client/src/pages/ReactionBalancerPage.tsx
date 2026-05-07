@@ -1,4 +1,4 @@
-import ReactionBalancer from "../components/reactionBalancer/ReactionBalancer";
+import ReactionBalancer from "../components/reactionBalance/ReactionBalancer";
 
 export default function ReactionBalancerPage() {
     return (
