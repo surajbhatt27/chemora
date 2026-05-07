@@ -1,4 +1,4 @@
-import { getInterpretations, scoreInterpretation } from "./parser";
+import { getInterpretations, scoreInterpretation } from "./chem/parser";
 
 export function parseFormula(formula: string): Record<string, number> {
     const interpretations = getInterpretations(formula);

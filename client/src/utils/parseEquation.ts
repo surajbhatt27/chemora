@@ -1,5 +1,6 @@
 import { parseFormula } from "./parseFormula";
 
+
 type Compound = {
     formula: string;
     elements: Record<string, number>;

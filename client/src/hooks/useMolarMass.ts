@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import atomicMass from "../data/atomicMass";
-import { getInterpretations, scoreInterpretation } from "../utils/parser";
+import { getInterpretations, scoreInterpretation } from "../utils/chem/parser";
 
 export function useMolarMass() {
     const [result, setResult] = useState<number | null>(null);
