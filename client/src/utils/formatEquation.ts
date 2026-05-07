@@ -1,4 +1,4 @@
-import { toSubscript } from "./toSubscript";
+import { toSubscript } from "./chem/toSubscript";
 
 export function formatEquation(eq: any, coeffs: number[]): string {
     const all = [...eq.reactants, ...eq.products];

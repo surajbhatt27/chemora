@@ -1,4 +1,4 @@
-import atomicMass from "../data/atomicMass";
+import atomicMass from "../../data/atomicMass";
 
 
 type Row = {
