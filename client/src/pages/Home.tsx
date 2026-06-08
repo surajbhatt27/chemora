@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Hexagon, Scale, FlaskConical } from "lucide-react";
+import { Hexagon, Scale, FlaskConical, Grid3x3 } from "lucide-react";
 
 export default function Home() {
     return (
@@ -38,6 +38,19 @@ export default function Home() {
                     </h2>
                     <p className="text-gray-500 text-sm">
                         Calculate molar masses with advanced formula parsing.
+                    </p>
+                </Link>
+
+                <Link
+                    to="/periodic-table"
+                    className="block p-6 rounded-lg border border-gray-800 bg-black hover:border-gray-700 hover:bg-gray-900/50 transition-all"
+                >
+                    <Grid3x3 className="w-8 h-8 text-gray-400 mb-3" />
+                    <h2 className="text-lg font-semibold text-white mb-1">
+                        Periodic Table
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                        Interactive periodic table with element details.
                     </p>
                 </Link>
             </div>
