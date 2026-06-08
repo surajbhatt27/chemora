@@ -1,43 +1,46 @@
 import { Link } from "react-router-dom";
+import { Hexagon, Scale, FlaskConical } from "lucide-react";
 
 export default function Home() {
     return (
-        <div className="min-h-screen bg-zinc-950 text-white p-8">
-        <h1 className="text-4xl font-bold mb-2">⚗️ Chemora</h1>
+        <div className="max-w-5xl mx-auto px-4 py-16">
+            {/* Hero Section */}
+            <div className="text-center mb-12">
+                <div className="flex justify-center mb-4">
+                    <Hexagon className="w-12 h-12 text-gray-400" />
+                </div>
+                <h1 className="text-4xl font-bold text-white mb-3">Chemora</h1>
+                <p className="text-gray-400 text-lg">Chemistry tools that actually work.</p>
+            </div>
 
-        <p className="text-zinc-400 mb-8">
-            Smart chemistry tools powered by real chemistry logic.
-        </p>
+            {/* Tool Cards */}
+            <div className="grid gap-5 sm:grid-cols-2">
+                <Link
+                    to="/balance"
+                    className="block p-6 rounded-lg border border-gray-800 bg-black hover:border-gray-700 hover:bg-gray-900/50 transition-all"
+                >
+                    <Scale className="w-8 h-8 text-gray-400 mb-3" />
+                    <h2 className="text-lg font-semibold text-white mb-1">
+                        Reaction Balancer
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                        Balance chemical equations using matrix solving.
+                    </p>
+                </Link>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-            
-            <Link
-            to="/balance"
-            className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-indigo-500 transition"
-            >
-            <h2 className="text-xl font-semibold mb-2">
-                ⚖️ Reaction Balancer
-            </h2>
-
-            <p className="text-zinc-400 text-sm">
-                Balance chemical equations instantly using matrix solving.
-            </p>
-            </Link>
-
-            <Link
-            to="/molar-mass"
-            className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 hover:border-indigo-500 transition"
-            >
-            <h2 className="text-xl font-semibold mb-2">
-                🧪 Molar Mass Calculator
-            </h2>
-
-            <p className="text-zinc-400 text-sm">
-                Calculate molar masses with advanced formula parsing.
-            </p>
-            </Link>
-
-        </div>
+                <Link
+                    to="/molar-mass"
+                    className="block p-6 rounded-lg border border-gray-800 bg-black hover:border-gray-700 hover:bg-gray-900/50 transition-all"
+                >
+                    <FlaskConical className="w-8 h-8 text-gray-400 mb-3" />
+                    <h2 className="text-lg font-semibold text-white mb-1">
+                        Molar Mass Calculator
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                        Calculate molar masses with advanced formula parsing.
+                    </p>
+                </Link>
+            </div>
         </div>
     );
 }
