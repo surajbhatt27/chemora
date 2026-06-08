@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Hexagon, Menu, X, Scale, FlaskConical, Grid3x3 } from "lucide-react";
+import { Hexagon, Menu, X, Scale, FlaskConical, Grid3x3, Repeat } from "lucide-react";
+
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,10 +26,9 @@ export default function Navbar() {
                     <NavLink
                         to="/balance"
                         className={({ isActive }) =>
-                            `${linkStyle} ${
-                                isActive
-                                    ? "bg-gray-800 text-white"
-                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                            `${linkStyle} ${isActive
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:bg-gray-900 hover:text-white"
                             }`
                         }
                     >
@@ -38,10 +38,9 @@ export default function Navbar() {
                     <NavLink
                         to="/molar-mass"
                         className={({ isActive }) =>
-                            `${linkStyle} ${
-                                isActive
-                                    ? "bg-gray-800 text-white"
-                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                            `${linkStyle} ${isActive
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:bg-gray-900 hover:text-white"
                             }`
                         }
                     >
@@ -51,14 +50,25 @@ export default function Navbar() {
                     <NavLink
                         to="/periodic-table"
                         className={({ isActive }) =>
-                            `${linkStyle} ${
-                                isActive
-                                    ? "bg-gray-800 text-white"
-                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                            `${linkStyle} ${isActive
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:bg-gray-900 hover:text-white"
                             }`
                         }
                     >
                         Periodic Table
+                    </NavLink>
+
+                    <NavLink
+                        to="/unit-converter"
+                        className={({ isActive }) =>
+                            `${linkStyle} ${isActive
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                            }`
+                        }
+                    >
+                        Converter
                     </NavLink>
                 </div>
 
@@ -83,10 +93,9 @@ export default function Navbar() {
                         <NavLink
                             to="/balance"
                             className={({ isActive }) =>
-                                `${mobileLinkStyle} ${
-                                    isActive
-                                        ? "bg-gray-800 text-white"
-                                        : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                                `${mobileLinkStyle} ${isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
                                 }`
                             }
                             onClick={() => setIsMenuOpen(false)}
@@ -98,10 +107,9 @@ export default function Navbar() {
                         <NavLink
                             to="/molar-mass"
                             className={({ isActive }) =>
-                                `${mobileLinkStyle} ${
-                                    isActive
-                                        ? "bg-gray-800 text-white"
-                                        : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                                `${mobileLinkStyle} ${isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
                                 }`
                             }
                             onClick={() => setIsMenuOpen(false)}
@@ -113,16 +121,29 @@ export default function Navbar() {
                         <NavLink
                             to="/periodic-table"
                             className={({ isActive }) =>
-                                `${mobileLinkStyle} ${
-                                    isActive
-                                        ? "bg-gray-800 text-white"
-                                        : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                                `${mobileLinkStyle} ${isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
                                 }`
                             }
                             onClick={() => setIsMenuOpen(false)}
                         >
                             <Grid3x3 className="w-5 h-5" />
                             Periodic Table
+                        </NavLink>
+
+                        <NavLink
+                            to="/unit-converter"
+                            className={({ isActive }) =>
+                                `${mobileLinkStyle} ${isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                                }`
+                            }
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            <Repeat className="w-5 h-5" />
+                            Converter
                         </NavLink>
                     </div>
                 </div>
