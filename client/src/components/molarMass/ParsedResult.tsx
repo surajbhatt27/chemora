@@ -16,39 +16,42 @@ export default function ParsedResult({
     finalError,
     best,
 }: ParsedResultProps) {
+    if (displayRows.length === 0 && !best && !finalError) return null;
+
     return (
-        <div className="flex flex-col gap-3 mb-4 w-full">
-        {best && (
-            <div className="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 px-3 py-2 rounded-lg text-sm">
-            ✓ Using best match: <span className="font-semibold">{best.label}</span>
-            </div>
-        )}
-
-        {displayRows.length > 0 && (
-            <div className="bg-zinc-900/50 p-4 rounded-xl">
-            <p className="text-zinc-400 text-sm mb-2">{formula}</p>
-            <p className="font-medium text-white mb-2">Parsed:</p>
-            <div className="space-y-1">
-                {displayRows.map((row, idx) => (
-                <div
-                    key={idx}
-                    className="flex justify-between items-center py-1.5 px-2 rounded-lg"
-                >
-                    <span className="font-mono font-medium text-white">
-                    {row.element}
-                    </span>
-                    <span className="text-zinc-400 text-sm">× {row.quantity}</span>
+        <div className="mb-5">
+            {best && (
+                <div className="mb-3 px-3 py-1.5 rounded-md bg-gray-900 border border-gray-800 text-gray-300 text-sm">
+                    Using: {best.label}
                 </div>
-                ))}
-            </div>
-            </div>
-        )}
+            )}
 
-        {finalError && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-2 rounded-lg text-sm">
-            ✗ {finalError}
-            </div>
-        )}
+            {displayRows.length > 0 && (
+                <div className="bg-black rounded-md border border-gray-800 p-3">
+                    <p className="text-gray-400 text-sm font-mono mb-2 break-all">
+                        {formula}
+                    </p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                        Composition
+                    </p>
+                    <div className="space-y-0.5">
+                        {displayRows.map((row, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-sm">
+                                <span className="font-mono font-medium text-white">
+                                    {row.element}
+                                </span>
+                                <span className="text-gray-400">{row.quantity}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {finalError && (
+                <div className="px-3 py-2 rounded-md bg-red-950/50 border border-red-800 text-red-400 text-sm">
+                    {finalError}
+                </div>
+            )}
         </div>
     );
 }

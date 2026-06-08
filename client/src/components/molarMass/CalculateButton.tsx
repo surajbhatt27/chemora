@@ -11,19 +11,15 @@ export default function CalculateButton({
 }: Props) {
     return (
         <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`
-            flex-1 py-2.5 rounded-xl font-semibold
-            transition-colors duration-200
-            ${
-            disabled
-                ? "bg-zinc-700 text-zinc-500 cursor-not-allowed"
-                : "bg-indigo-600 text-white hover:bg-indigo-700"
-            }
-        `}
+            onClick={onClick}
+            disabled={disabled}
+            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                disabled
+                    ? "bg-gray-800 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-700 text-white hover:bg-gray-600"
+            }`}
         >
-        {isCalculating ? "Calculating..." : "🧪 Calculate"}
+            {isCalculating ? "Calculating..." : "Calculate"}
         </button>
     );
 }
