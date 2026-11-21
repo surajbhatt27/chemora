@@ -33,13 +33,14 @@ export default function ReactionBalancer() {
                     Reaction Balancer
                 </h1>
                 <p className="text-gray-400 text-sm mb-5">
-                    Enter an unbalanced chemical equation.
+                    Enter an unbalanced chemical equation. Coefficients you type are
+                    ignored; the balanced ones are calculated.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-2">
                     <input
                         type="text"
-                        placeholder="e.g., H2 + O2 -> H2O"
+                        placeholder="e.g., 2H2 + O2 → 2H2O"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="flex-1 px-3 py-2 rounded-md border border-gray-700 bg-black text-white placeholder:text-gray-500 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 transition-colors"

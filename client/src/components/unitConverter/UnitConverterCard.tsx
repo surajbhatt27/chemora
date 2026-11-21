@@ -1,5 +1,21 @@
 import { useState } from "react";
 import atomicMass from "../../data/atomicMass";
+import { parseFormula } from "../../utils/parseFormula";
+
+// Molar mass via the shared formula parser (handles multi-digit counts and groups)
+function getMolarMass(formula: string): number {
+    if (!formula.trim()) return 0;
+
+    try {
+        const elements = parseFormula(formula);
+        return Object.entries(elements).reduce(
+            (total, [element, count]) => total + atomicMass[element] * count,
+            0
+        );
+    } catch {
+        return 0;
+    }
+}
 
 export default function UnitConverterCard() {
     const [converterType, setConverterType] = useState<"mole" | "temperature" | "pressure" | "molarity">("mole");
@@ -26,31 +42,7 @@ export default function UnitConverterCard() {
     const [molarityVolume, setMolarityVolume] = useState("");
     const [molarityConcentration, setMolarityConcentration] = useState("");
 
-    // Get molar mass from formula (simple parser)
-    const getMolarMass = (formulaStr: string): number => {
-        let mass = 0;
-        for (let i = 0; i < formulaStr.length; i++) {
-            const char = formulaStr[i];
-            if (char.match(/[A-Z]/)) {
-                let element = char;
-                if (formulaStr[i + 1]?.match(/[a-z]/)) {
-                    element += formulaStr[i + 1];
-                    i++;
-                }
-                let count = 1;
-                if (formulaStr[i + 1]?.match(/[0-9]/)) {
-                    count = parseInt(formulaStr[i + 1]);
-                    i++;
-                }
-                if (atomicMass[element]) {
-                    mass += atomicMass[element] * count;
-                }
-            }
-        }
-        return mass;
-    };
-
-    const molarMass = formula ? getMolarMass(formula) : 0;
+    const molarMass = getMolarMass(formula);
 
     const handleMolesChange = (val: string) => {
         setMoles(val);

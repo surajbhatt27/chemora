@@ -11,11 +11,18 @@ type Token = {
     count: number;
 };
 
+type ParseOptions = {
+    // Respect the capitalization the user typed: "Co" is cobalt, "CO" is C + O,
+    // and "co" parses to nothing. Parenthesised groups included.
+    strictCase?: boolean;
+};
+
 const validElements = new Set(Object.keys(atomicMass));
 
 function parseFormulaAll(
     str: string,
-    validElements: Set<string>
+    validElements: Set<string>,
+    strictCase = false
 ): Token[][] {
     const results: Token[][] = [];
 
@@ -49,7 +56,7 @@ function parseFormulaAll(
             }
             const multiplier = numStr ? parseInt(numStr) : 1;
 
-            const innerResults = parseFormulaAll(inside, validElements);
+            const innerResults = parseFormulaAll(inside, validElements, strictCase);
 
             for (const inner of innerResults) {
                 const multiplied = inner.map(t => ({
@@ -77,7 +84,7 @@ function parseFormulaAll(
         }
 
         // CASE 2: 1-letter element
-        const one = str[index].toUpperCase();
+        const one = strictCase ? str[index] : str[index].toUpperCase();
         if (validElements.has(one)) {
             const { value, nextIndex } = readNumber(index + 1);
 
@@ -86,9 +93,9 @@ function parseFormulaAll(
 
         // CASE 3: 2-letter element
         if (index + 1 < str.length) {
-            const two =
-                str[index].toUpperCase() +
-                str[index + 1].toLowerCase();
+            const two = strictCase
+                ? str.slice(index, index + 2)
+                : str[index].toUpperCase() + str[index + 1].toLowerCase();
 
             if (validElements.has(two)) {
                 const { value, nextIndex } = readNumber(index + 2);
@@ -115,10 +122,10 @@ function tokensToRows(tokens: Token[]): Row[] {
     }));
 }
 
-function getInterpretations(formula: string) {
+function getInterpretations(formula: string, options: ParseOptions = {}) {
     const clean = formula.replace(/\s+/g, "");
 
-    const tokenSets = parseFormulaAll(clean, validElements);
+    const tokenSets = parseFormulaAll(clean, validElements, options.strictCase);
 
     return tokenSets
         .map(tokens => ({
