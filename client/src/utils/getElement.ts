@@ -1,7 +1,9 @@
-export function getAllElements(equation: any): string[] {
+import type { Compound, Equation } from "./parseEquation";
+
+export function getAllElements(equation: Equation): string[] {
     const set = new Set<string>();
 
-    const collect = (compounds: any[]) => {
+    const collect = (compounds: Compound[]) => {
         compounds.forEach((c) => {
         Object.keys(c.elements).forEach((el) => set.add(el));
         });

@@ -1,4 +1,6 @@
-export function buildEquations(equation: any, elements: string[]) {
+import type { Equation } from "./parseEquation";
+
+export function buildEquations(equation: Equation, elements: string[]) {
     const allCompounds = [
         ...equation.reactants,
         ...equation.products,
