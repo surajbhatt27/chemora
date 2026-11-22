@@ -1,6 +1,7 @@
 import { toSubscript } from "./chem/toSubscript";
+import type { Equation } from "./parseEquation";
 
-export function formatEquation(eq: any, coeffs: number[]): string {
+export function formatEquation(eq: Equation, coeffs: number[]): string {
     const all = [...eq.reactants, ...eq.products];
 
     const parts = all.map((compound, i) => {
