@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Hexagon, Menu, X, Scale, FlaskConical, Grid3x3, Repeat } from "lucide-react";
+import { Hexagon, Menu, X, Scale, FlaskConical, Grid3x3, Repeat, PieChart } from "lucide-react";
 
 
 export default function Navbar() {
@@ -45,6 +45,18 @@ export default function Navbar() {
                         }
                     >
                         Molar Mass
+                    </NavLink>
+
+                    <NavLink
+                        to="/composition"
+                        className={({ isActive }) =>
+                            `${linkStyle} ${isActive
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                            }`
+                        }
+                    >
+                        Composition
                     </NavLink>
 
                     <NavLink
@@ -116,6 +128,20 @@ export default function Navbar() {
                         >
                             <FlaskConical className="w-5 h-5" />
                             Molar Mass
+                        </NavLink>
+
+                        <NavLink
+                            to="/composition"
+                            className={({ isActive }) =>
+                                `${mobileLinkStyle} ${isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                                }`
+                            }
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            <PieChart className="w-5 h-5" />
+                            Composition
                         </NavLink>
 
                         <NavLink
