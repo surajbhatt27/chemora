@@ -5,6 +5,7 @@ import ReactionBalancerPage from "./pages/ReactionBalancerPage";
 import MolarMassPage from "./pages/MolarMassPage";
 import PeriodicTablePage from "./pages/PeriodicTablePage";
 import UnitConverterPage from "./pages/UnitConverterPage";
+import CompositionPage from "./pages/CompositionPage";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/molar-mass" element={<MolarMassPage />} />
         <Route path="/periodic-table" element={<PeriodicTablePage />} />
         <Route path="/unit-converter" element={<UnitConverterPage />} />
+        <Route path="/composition" element={<CompositionPage />} />
       </Routes>
     </div>
   );
