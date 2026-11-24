@@ -1,21 +1,5 @@
 import { useState } from "react";
-import atomicMass from "../../data/atomicMass";
-import { parseFormula } from "../../utils/parseFormula";
-
-// Molar mass via the shared formula parser (handles multi-digit counts and groups)
-function getMolarMass(formula: string): number {
-    if (!formula.trim()) return 0;
-
-    try {
-        const elements = parseFormula(formula);
-        return Object.entries(elements).reduce(
-            (total, [element, count]) => total + atomicMass[element] * count,
-            0
-        );
-    } catch {
-        return 0;
-    }
-}
+import { getMolarMass } from "../../utils/molarMass";
 
 export default function UnitConverterCard() {
     const [converterType, setConverterType] = useState<"mole" | "temperature" | "pressure" | "molarity">("mole");
