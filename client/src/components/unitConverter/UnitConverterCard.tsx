@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getMolarMass } from "../../utils/molarMass";
+import { readFormula } from "../../utils/parseFormula";
 
 export default function UnitConverterCard() {
     const [converterType, setConverterType] = useState<"mole" | "temperature" | "pressure" | "molarity">("mole");
@@ -27,6 +28,11 @@ export default function UnitConverterCard() {
     const [molarityConcentration, setMolarityConcentration] = useState("");
 
     const molarMass = getMolarMass(formula);
+
+    // getMolarMass only reports "no result", so ask the parser why it refused:
+    // a case-ambiguous formula gets the specific capitalization hint.
+    const formulaError =
+        formula.trim() && molarMass === 0 ? readFormula(formula).error : null;
 
     const handleMolesChange = (val: string) => {
         setMoles(val);
@@ -322,7 +328,8 @@ export default function UnitConverterCard() {
 
                         {formula && molarMass === 0 && (
                             <div className="px-3 py-2 rounded-md bg-red-950/50 border border-red-800 text-red-400 text-sm">
-                                Invalid formula or element not found
+                                {formulaError ??
+                                    "Invalid formula or element not found"}
                             </div>
                         )}
                     </div>

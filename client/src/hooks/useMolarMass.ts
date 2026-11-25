@@ -1,70 +1,51 @@
 import { useState, useMemo } from "react";
-import atomicMass from "../data/atomicMass";
-import { getInterpretations, scoreInterpretation } from "../utils/chem/parser";
+import { getMolarMass } from "../utils/molarMass";
+import { readFormula } from "../utils/parseFormula";
+
+const EMPTY = {
+    rows: [] as { element: string; quantity: number }[],
+    error: null as string | null,
+};
 
 export function useMolarMass() {
-    const [result, setResult] = useState<number | null>(null);
     const [formula, setFormula] = useState("");
-    const [error, setError] = useState<string | null>(null);
     const [isCalculating, setIsCalculating] = useState(false);
     const [displayResult, setDisplayResult] = useState("");
-    const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const interpretations = useMemo(() => {
-        if (!formula.trim()) return [];
+    // Typed capitalization decides the reading; case-ambiguous input comes back
+    // as an error rather than quietly using a different compound.
+    const parsed = useMemo(
+        () => (formula.trim() ? readFormula(formula) : EMPTY),
+        [formula]
+    );
 
-        return getInterpretations(formula)
-        .sort(
-            (a, b) =>
-            scoreInterpretation(b.tokens) - scoreInterpretation(a.tokens)
-        )
-        .map((i, idx) => ({ ...i, originalIndex: idx }));
-    }, [formula]);
+    // A result belongs to the formula it was calculated for, so editing the
+    // formula clears it instead of leaving a stale mass on screen.
+    const updateFormula = (value: string) => {
+        setFormula(value);
+        setDisplayResult("");
+    };
 
-    const best = interpretations[selectedIndex] || null;
-    const displayRows = best?.rows || [];
-
-    const finalError = interpretations.length === 0 ? "Invalid formula" : error;
-
-    const calculateMass = async () => {
+    const calculateMass = () => {
         if (isCalculating) return;
 
         setIsCalculating(true);
-
-        let total = 0;
-        for (const row of displayRows) {
-        if (!atomicMass[row.element]) {
-            setIsCalculating(false);
-            return;
-        }
-        total += atomicMass[row.element] * row.quantity;
-        }
-
-        const text = `${total.toFixed(4)} g/mol`;
-        setDisplayResult(text);
-        setResult(total);
+        setDisplayResult(`${getMolarMass(formula).toFixed(4)} g/mol`);
         setIsCalculating(false);
     };
 
     return {
         // state
-        result,
         formula,
-        error,
         isCalculating,
         displayResult,
-        selectedIndex,
 
         // derived
-        interpretations,
-        best,
-        displayRows,
-        finalError,
+        displayRows: parsed.rows,
+        finalError: parsed.error,
 
         // actions
-        setFormula,
-        setError,
-        setSelectedIndex,
+        setFormula: updateFormula,
         calculateMass,
     };
 }

@@ -7,25 +7,17 @@ interface ParsedResultProps {
     formula: string;
     displayRows: Row[];
     finalError: string | null;
-    best?: { label: string } | null;
 }
 
 export default function ParsedResult({
     formula,
     displayRows,
     finalError,
-    best,
 }: ParsedResultProps) {
-    if (displayRows.length === 0 && !best && !finalError) return null;
+    if (displayRows.length === 0 && !finalError) return null;
 
     return (
         <div className="mb-5">
-            {best && (
-                <div className="mb-3 px-3 py-1.5 rounded-md bg-gray-900 border border-gray-800 text-gray-300 text-sm">
-                    Using: {best.label}
-                </div>
-            )}
-
             {displayRows.length > 0 && (
                 <div className="bg-black rounded-md border border-gray-800 p-3">
                     <p className="text-gray-400 text-sm font-mono mb-2 break-all">

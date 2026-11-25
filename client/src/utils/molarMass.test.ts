@@ -32,4 +32,11 @@ describe("getMolarMass", () => {
     expect(getMolarMass("   ")).toBe(0);
     expect(getMolarMass("Xx2")).toBe(0);
   });
+
+  it("returns 0 for case-ambiguous input instead of the wrong compound", () => {
+    // Lenient parsing read these as C + Ac + O3 (287.008 g/mol).
+    expect(getMolarMass("caco3")).toBe(0);
+    expect(getMolarMass("Caco3")).toBe(0);
+    expect(getMolarMass("caCO3")).toBe(0);
+  });
 });
