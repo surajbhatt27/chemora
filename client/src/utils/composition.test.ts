@@ -48,6 +48,14 @@ describe("getPercentComposition", () => {
     );
     expect(() => getPercentComposition("Xx2")).toThrow(/Invalid formula/);
   });
+
+  it("refuses case-ambiguous input instead of inventing elements", () => {
+    // Lenient parsing used to tie C + Ac + O3 against Ca + C + O3 and pick
+    // actinium, so "caco3" reported 79% Ac. It must now ask for capitalization.
+    for (const formula of ["caco3", "Caco3", "caCO3"]) {
+      expect(() => getPercentComposition(formula)).toThrow(/Ambiguous formula/);
+    }
+  });
 });
 
 describe("getEmpiricalFormula", () => {
@@ -68,6 +76,10 @@ describe("getEmpiricalFormula", () => {
   it("throws for unparseable input", () => {
     expect(() => getEmpiricalFormula("")).toThrow();
     expect(() => getEmpiricalFormula("Xx2")).toThrow(/Invalid formula/);
+  });
+
+  it("refuses case-ambiguous input instead of inventing elements", () => {
+    expect(() => getEmpiricalFormula("caco3")).toThrow(/Ambiguous formula/);
   });
 });
 

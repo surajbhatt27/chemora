@@ -6,18 +6,12 @@ import { useMolarMass } from "../../hooks/useMolarMass";
 
 export default function MolarMassCard() {
     const {
-        result,
         formula,
         isCalculating,
         displayResult,
-        selectedIndex,
-        interpretations,
-        best,
         displayRows,
         finalError,
         setFormula,
-        setError,
-        setSelectedIndex,
         calculateMass,
     } = useMolarMass();
 
@@ -35,22 +29,11 @@ export default function MolarMassCard() {
                     formula={formula}
                     displayRows={displayRows}
                     finalError={finalError}
-                    best={best}
                 />
 
                 <FormulaInput
                     formula={formula}
-                    selectedIndex={selectedIndex}
-                    interpretations={interpretations}
-                    suggestions={interpretations.filter(
-                        (i) => i.originalIndex !== selectedIndex
-                    )}
-                    onFormulaChange={(val) => {
-                        setFormula(val);
-                        setSelectedIndex(0);
-                        setError(null);
-                    }}
-                    onSelectSuggestion={(index) => setSelectedIndex(index)}
+                    onFormulaChange={setFormula}
                 />
 
                 <div className="flex items-center justify-between gap-3 mt-5 pt-4 border-t border-gray-800">
@@ -59,11 +42,7 @@ export default function MolarMassCard() {
                         isCalculating={isCalculating}
                         disabled={!!finalError || displayRows.length === 0}
                     />
-                    <ResultDisplay
-                        result={result}
-                        displayResult={displayResult}
-                        isCalculating={isCalculating}
-                    />
+                    <ResultDisplay displayResult={displayResult} />
                 </div>
             </div>
         </div>

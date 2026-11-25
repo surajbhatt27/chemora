@@ -131,30 +131,12 @@ function getInterpretations(formula: string, options: ParseOptions = {}) {
         .map(tokens => ({
             tokens,
             rows: tokensToRows(tokens),
-            label: tokens
-                .map(t => `${t.el}${t.count > 1 ? t.count : ""}`)
-                .join(" + "),
         }))
         .filter(i =>
             i.rows.every(r => atomicMass[r.element])
         );
 }
 
-function scoreInterpretation(tokens: Token[]) {
-    let score = 0;
-
-    for (const t of tokens) {
-        if (t.el.length === 2) score += 2;
-        else score += 1;
-
-        // small bonus for normal counts
-        if (t.count <= 3) score += 0.5;
-    }
-
-    return score;
-}
-
 export {
-    getInterpretations,
-    scoreInterpretation
+    getInterpretations
 }

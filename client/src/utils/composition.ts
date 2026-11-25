@@ -1,6 +1,6 @@
 import atomicMass from "../data/atomicMass";
 import { getMolarMass } from "./molarMass";
-import { parseFormula } from "./parseFormula";
+import { parseFormulaStrict } from "./parseFormula";
 
 export type ElementShare = {
     element: string;
@@ -70,13 +70,10 @@ function getElementCounts(formula: string): Count[] {
         throw new Error("Enter a chemical formula.");
     }
 
-    let elements: Record<string, number>;
-
-    try {
-        elements = parseFormula(formula);
-    } catch {
-        throw new Error(`Invalid formula: "${formula.trim()}".`);
-    }
+    // Strict parsing keeps a typo like "caco3" from silently becoming
+    // C + Ac + O3 (actinium) instead of Ca + C + O3; its "Invalid formula" and
+    // "Ambiguous formula" messages are what the card shows the user.
+    const elements = parseFormulaStrict(formula);
 
     return Object.entries(elements).map(([element, count]) => ({
         element,
