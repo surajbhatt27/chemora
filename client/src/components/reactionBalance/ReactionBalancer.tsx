@@ -1,8 +1,5 @@
 import { useState } from "react";
-import { parseEquation } from "../../utils/parseEquation";
-import { getAllElements } from "../../utils/getElement";
-import { buildEquations } from "../../utils/buildEquations";
-import { solveMatrix } from "../../utils/solveMatrix";
+import { balanceEquation } from "../../utils/balanceEquation";
 import { formatEquation } from "../../utils/formatEquation";
 
 export default function ReactionBalancer() {
@@ -15,11 +12,8 @@ export default function ReactionBalancer() {
         setResult("");
 
         try {
-            const eq = parseEquation(input);
-            const elements = getAllElements(eq);
-            const matrix = buildEquations(eq, elements);
-            const coeffs = solveMatrix(matrix);
-            setResult(formatEquation(eq, coeffs));
+            const { equation, coefficients } = balanceEquation(input);
+            setResult(formatEquation(equation, coefficients));
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
             setError(err.message);

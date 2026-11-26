@@ -3,6 +3,7 @@ import { parseEquation } from "./parseEquation";
 import { getAllElements } from "./getElement";
 import { buildEquations } from "./buildEquations";
 import { solveMatrix } from "./solveMatrix";
+import { balanceEquation } from "./balanceEquation";
 
 // The full pipeline the Reaction Balancer runs: parse -> element matrix -> solve.
 function balance(input: string): number[] {
@@ -54,6 +55,18 @@ describe("balancer", () => {
 
   it("accepts an equation that is already balanced", () => {
     expect(balance("H2O -> H2O")).toEqual([1, 1]);
+  });
+
+  it("shares one pipeline with stoichiometry", () => {
+    const { equation, coefficients } = balanceEquation(
+      "KMnO4 + HCl -> KCl + MnCl2 + H2O + Cl2"
+    );
+
+    expect(equation.reactants.map((compound) => compound.formula)).toEqual([
+      "KMnO4",
+      "HCl",
+    ]);
+    expect(coefficients).toEqual([2, 16, 2, 2, 8, 5]);
   });
 });
 
