@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Hexagon, Scale, FlaskConical, Grid3x3, Repeat, PieChart } from "lucide-react";
+import { Hexagon, Scale, FlaskConical, Grid3x3, Repeat, PieChart, Atom } from "lucide-react";
 
 export default function Home() {
     return (
@@ -25,6 +25,20 @@ export default function Home() {
                     </h2>
                     <p className="text-gray-500 text-sm">
                         Balance chemical equations using matrix solving.
+                    </p>
+                </Link>
+
+                <Link
+                    to="/stoichiometry"
+                    className="block p-6 rounded-lg border border-gray-800 bg-black hover:border-gray-700 hover:bg-gray-900/50 transition-all"
+                >
+                    <Atom className="w-8 h-8 text-gray-400 mb-3" />
+                    <h2 className="text-lg font-semibold text-white mb-1">
+                        Stoichiometry
+                    </h2>
+                    <p className="text-gray-500 text-sm">
+                        Every species' moles and mass from one known amount, with the
+                        limiting reagent.
                     </p>
                 </Link>
 

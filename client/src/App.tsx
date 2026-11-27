@@ -6,6 +6,7 @@ import MolarMassPage from "./pages/MolarMassPage";
 import PeriodicTablePage from "./pages/PeriodicTablePage";
 import UnitConverterPage from "./pages/UnitConverterPage";
 import CompositionPage from "./pages/CompositionPage";
+import StoichiometryPage from "./pages/StoichiometryPage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/periodic-table" element={<PeriodicTablePage />} />
         <Route path="/unit-converter" element={<UnitConverterPage />} />
         <Route path="/composition" element={<CompositionPage />} />
+        <Route path="/stoichiometry" element={<StoichiometryPage />} />
       </Routes>
     </div>
   );
