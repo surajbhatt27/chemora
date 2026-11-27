@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Hexagon, Menu, X, Scale, FlaskConical, Grid3x3, Repeat, PieChart } from "lucide-react";
+import { Hexagon, Menu, X, Scale, FlaskConical, Grid3x3, Repeat, PieChart, Atom } from "lucide-react";
 
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const linkStyle = "px-3 py-1.5 rounded-md text-sm font-medium transition-colors";
+    const linkStyle = "px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors";
     const mobileLinkStyle = "flex items-center gap-3 px-4 py-2 rounded-md text-base font-medium transition-colors";
 
     return (
@@ -22,7 +22,7 @@ export default function Navbar() {
                 </NavLink>
 
                 {/* Desktop Navigation */}
-                <div className="hidden sm:flex items-center gap-1">
+                <div className="hidden lg:flex items-center gap-1">
                     <NavLink
                         to="/balance"
                         className={({ isActive }) =>
@@ -33,6 +33,18 @@ export default function Navbar() {
                         }
                     >
                         Balancer
+                    </NavLink>
+
+                    <NavLink
+                        to="/stoichiometry"
+                        className={({ isActive }) =>
+                            `${linkStyle} ${isActive
+                                ? "bg-gray-800 text-white"
+                                : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                            }`
+                        }
+                    >
+                        Stoichiometry
                     </NavLink>
 
                     <NavLink
@@ -87,7 +99,7 @@ export default function Navbar() {
                 {/* Mobile Menu Button */}
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="sm:hidden p-2 rounded-md hover:bg-gray-900 transition-colors"
+                    className="lg:hidden p-2 rounded-md hover:bg-gray-900 transition-colors"
                     aria-label="Toggle menu"
                 >
                     {isMenuOpen ? (
@@ -100,7 +112,7 @@ export default function Navbar() {
 
             {/* Mobile Dropdown Menu */}
             {isMenuOpen && (
-                <div className="sm:hidden border-t border-gray-800 bg-black py-2 px-4">
+                <div className="lg:hidden border-t border-gray-800 bg-black py-2 px-4">
                     <div className="flex flex-col gap-1">
                         <NavLink
                             to="/balance"
@@ -114,6 +126,20 @@ export default function Navbar() {
                         >
                             <Scale className="w-5 h-5" />
                             Balancer
+                        </NavLink>
+
+                        <NavLink
+                            to="/stoichiometry"
+                            className={({ isActive }) =>
+                                `${mobileLinkStyle} ${isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
+                                }`
+                            }
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            <Atom className="w-5 h-5" />
+                            Stoichiometry
                         </NavLink>
 
                         <NavLink
