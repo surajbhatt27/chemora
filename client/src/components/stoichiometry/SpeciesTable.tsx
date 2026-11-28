@@ -3,7 +3,7 @@ import { formatQuantity } from "../../utils/formatQuantity";
 import type { StoichiometryResult } from "../../utils/stoichiometry";
 
 const rowGrid =
-    "grid grid-cols-[1fr_3.25rem_4.25rem] sm:grid-cols-[1fr_2.5rem_4.5rem_5.5rem] gap-x-2 sm:gap-x-3 items-baseline";
+    "grid grid-cols-[1fr_3.25rem_4.25rem] sm:grid-cols-[1fr_3.25rem_4.5rem_5.5rem] gap-x-2 sm:gap-x-3 items-baseline";
 
 const badgeClass = "text-xs px-1.5 py-0.5 rounded";
 
@@ -25,7 +25,7 @@ export default function SpeciesTable({
                 className={`${rowGrid} pb-2 border-b border-gray-800 text-xs uppercase tracking-wide text-gray-500`}
             >
                 <span>Species</span>
-                <span className="hidden sm:block text-right">ν</span>
+                <span className="hidden sm:block text-right">Coeff</span>
                 <span className="text-right">mol</span>
                 <span className="text-right">g</span>
             </div>
@@ -37,6 +37,10 @@ export default function SpeciesTable({
                 >
                     <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                         <span className="font-mono text-white break-all">
+                            {/* Narrow screens have no coefficient column, so it leans on the formula. */}
+                            <span className="sm:hidden">
+                                {row.coefficient > 1 ? row.coefficient : ""}
+                            </span>
                             {toSubscript(row.formula)}
                             {(counts.get(row.formula) ?? 0) > 1 && (
                                 <span className="text-gray-500">
@@ -44,9 +48,6 @@ export default function SpeciesTable({
                                     ({row.side})
                                 </span>
                             )}
-                        </span>
-                        <span className="sm:hidden text-xs font-mono text-gray-500">
-                            ν {row.coefficient}
                         </span>
                         {result.limiting?.index === row.index && (
                             <span className={`${badgeClass} bg-gray-800 text-white`}>
